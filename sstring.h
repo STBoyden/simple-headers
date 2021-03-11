@@ -7,17 +7,20 @@
 #include "types.h"
 
 #define T char
+
 #include "vec.h"
 
 typedef struct string string;
 
 struct string {
     char_vec data;
+    size_t* len;
 };
 
 static string string_new(const str s) {
     string str;
     str.data = char_vec_new();
+    str.len = &str.data.len;
 
     for (i32 i = 0; i < strlen(s); i++) {
         char_vec_push(&str.data, s[i]);
@@ -37,7 +40,7 @@ static char string_insert(string *str, char c, size_t index) {
 }
 
 static char *string_to_cstr(string *str) {
-    char *cstr = (char *)malloc((str->data.len + 1 * sizeof(char)));
+    char *cstr = (char *) malloc((str->data.len + 1 * sizeof(char)));
 
     for (i32 i = 0; i < str->data.len; i++) {
         cstr[i] = str->data.arr[i];
@@ -48,7 +51,7 @@ static char *string_to_cstr(string *str) {
 
 static u64 string_hash(string *str) {
     u64 hash = 5381;
-    int c;
+    u8 c;
 
     while ((c = *str->data.arr++))
         hash = ((hash << 5) + hash) + c;
@@ -56,4 +59,8 @@ static u64 string_hash(string *str) {
     return hash;
 }
 
-static void string_free(string *str) { char_vec_free(&str->data); }
+static void string_free(string *str) {
+    char_vec_free(&str->data);
+}
+
+static size_t string_length(string *str) { return *str->len; }
