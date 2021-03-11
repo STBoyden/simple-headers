@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <string.h>
 
 // aliases for primitives
 
@@ -65,9 +66,11 @@ static void f32_free(f32 *f) {}
 static void f64_free(f64 *f) {}
 
 static size_t str_hash(str s) {
-
     u64 hash = 5381;
     u8 c;
+
+    str inner = malloc(strlen(s) * sizeof(char));
+    strcpy(inner, s);
 
     while ((c = *s++))
         hash = ((hash << 5) + hash) + c;

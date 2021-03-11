@@ -29,16 +29,6 @@ static void GNG3(K, V, _entry_free)(GNG3(K, V, _entry) *entry) {
     GNG(V, _free)(&entry->value);
 }
 
-static bool GNG3(K, V, _entry_key_check)(GNG3(K, V, _entry) *entry, K key) {
-    GNG3(K, V, _entry) e2 = {.key = key, .value = entry->value};
-
-    if (memcmp(entry, &e2, sizeof(*entry)) == 0) {
-        return true;
-    }
-
-    return false;
-}
-
 typedef struct {
     size_t capacity;
     size_t size;
@@ -84,7 +74,7 @@ GNG3(K, V, _dict_insert)(GNG3(K, V, _dict) *dict, K key, V value) {
         }
         free(dict->buckets);
         dict->buckets = (GNG3(K, V, _entry) *) malloc(
-            dict->capacity * sizeof(GNG3(K, V, _entry)));
+                dict->capacity * sizeof(GNG3(K, V, _entry)));
 
         GNG3(K, V, _entry) *e = NULL;
         while (e != NULL) {
@@ -109,7 +99,7 @@ GNG3(K, V, _dict_remove)(GNG3(K, V, _dict) *dict, K key) {
 
 static bool GNG3(K, V, _dict_contains)(GNG3(K, V, _dict) *dict, K key) {
     for (i32 i = 0; i < dict->size; i++) {
-        if (GNG3(K, V, _entry_key_check)(&dict->buckets[i], key)) {
+        if (GNG(K, _hash)(&key) == GNG(K, _hash)(&dict->buckets[i].key)) {
             return true;
         }
     }

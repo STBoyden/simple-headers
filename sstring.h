@@ -47,11 +47,17 @@ static char *string_to_cstr(string *str) {
     return cstr;
 }
 
-static u64 string_hash(string *str) {
+static u64 string_hash(string *hash_string) {
     u64 hash = 5381;
-    u8 c;
+    if (hash_string->data.arr == NULL)
+        return hash;
 
-    while ((c = *str->data.arr++))
+    u8 c;
+    str inner = malloc(hash_string->data.len * sizeof(char));
+    strcpy(inner, hash_string->data.arr);
+    string data_str = string_new(inner);
+
+    while ((c = *data_str.data.arr++))
         hash = ((hash << 5) + hash) + c;
 
     return hash;
