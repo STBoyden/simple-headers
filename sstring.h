@@ -10,12 +10,10 @@
 
 #include "vec.h"
 
-typedef struct string string;
-
-struct string {
+typedef struct {
     char_vec data;
-    size_t* len;
-};
+    size_t *len;
+} string;
 
 static string string_new(const str s) {
     string str;
