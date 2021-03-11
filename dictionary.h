@@ -24,25 +24,31 @@ typedef struct {
     V value;
 } GNG3(K, V, _entry);
 
-static void GNG3(K, V, _entry_free)(GNG3(K, V, _entry) * entry) {
+static void GNG3(K, V, _entry_free)(GNG3(K, V, _entry) *entry) {
     GNG(K, _free)(&entry->key);
     GNG(V, _free)(&entry->value);
 }
 
+static bool GNG3(K, V, _entry_key_check)(GNG3(K, V, _entry) *entry, K key) {
+    GNG3(K, V, _entry) e2 = {.key = key, .value = entry->value};
+
+    if (memcmp(entry, &e2, sizeof(*entry)) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
 typedef struct {
-    size_t seed0;
-    size_t seed1;
     size_t capacity;
     size_t size;
-    GNG3(K, V, _entry) * buckets;
+    GNG3(K, V, _entry) *buckets;
 } GNG3(K, V, _dict);
 
 // T_K_dict_init - Initialises the given dict reference with default data.
-static void GNG3(K, V, _dict_init)(GNG3(K, V, _dict) * dict) {
+static void GNG3(K, V, _dict_init)(GNG3(K, V, _dict) *dict) {
     dict->capacity = 1 << 4;
     dict->size = 0;
-    dict->seed0 = 0;
-    dict->seed1 = 0;
     dict->buckets = malloc(dict->capacity * sizeof(GNG3(K, V, _entry)));
 }
 
@@ -64,19 +70,8 @@ static GNG3(K, V, _dict) GNG3(K, V, _dict_new_with_capacity)(size_t capacity) {
     return dict;
 }
 
-// T_K_dict_new_with_seeds - Simply creates a new K_V_dict with specified seeds
-// rather than forcing the use of K_V_dict_init and returns the K_V_dict.
-static GNG3(K, V, _dict)
-    GNG3(K, V, _dict_new_with_seeds)(size_t seed0, size_t seed1) {
-    GNG3(K, V, _dict) dict;
-    GNG3(K, V, _dict_init)(&dict);
-    dict.seed0 = seed0;
-    dict.seed1 = seed1;
-    return dict;
-}
-
 static GNG3(K, V, _entry)
-    GNG3(K, V, _dict_insert)(GNG3(K, V, _dict) * dict, K key, V value) {
+GNG3(K, V, _dict_insert)(GNG3(K, V, _dict) *dict, K key, V value) {
     GNG3(K, V, _entry) entry = {.key = key, .value = value};
 
     if (dict->size >= dict->capacity) {
@@ -88,10 +83,10 @@ static GNG3(K, V, _entry)
             GNG3(K, V, _entry_free)(&dict->buckets[i]);
         }
         free(dict->buckets);
-        dict->buckets = (GNG3(K, V, _entry) *)malloc(
+        dict->buckets = (GNG3(K, V, _entry) *) malloc(
             dict->capacity * sizeof(GNG3(K, V, _entry)));
 
-        GNG3(K, V, _entry) * e;
+        GNG3(K, V, _entry) *e = NULL;
         while (e != NULL) {
             *e = old[GNG(K, _hash)(&key) % old_capacity];
             dict->buckets[GNG(K, _hash)(&e->key) % dict->capacity] = *e;
@@ -103,11 +98,35 @@ static GNG3(K, V, _entry)
     return entry;
 }
 
-static V *GNG3(K, V, _get)(GNG3(K, V, _dict) * dict, K key) {
-    return &dict->buckets[GNG(K, _hash)(&key) % dict->capacity].value;
+static GNG3(K, V, _entry)
+GNG3(K, V, _dict_remove)(GNG3(K, V, _dict) *dict, K key) {
+    GNG3(K, V, _entry) entry = dict->buckets[GNG(K, _hash)(&key) % dict->capacity];
+    GNG3(K, V, _entry_free)(&dict->buckets[GNG(K, _hash)(&key) % dict->capacity]);
+
+    dict->size--;
+    return entry;
 }
 
-static void GNG3(K, V, _free)(GNG3(K, V, _dict) * dict) {
+static bool GNG3(K, V, _dict_contains)(GNG3(K, V, _dict) *dict, K key) {
+    for (i32 i = 0; i < dict->size; i++) {
+        if (GNG3(K, V, _entry_key_check)(&dict->buckets[i], key)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static V GNG3(K, V, _get)(GNG3(K, V, _dict) *dict, K key) {
+    if (GNG3(K, V, _dict_contains)(dict, key)) {
+        fprintf(stderr, "Key does not exist in dictionary");
+        // TODO: custom error type
+    }
+
+    return dict->buckets[GNG(K, _hash)(&key) % dict->capacity].value;
+}
+
+static void GNG3(K, V, _dict_free)(GNG3(K, V, _dict) *dict) {
     for (i32 i = 0; i < dict->size; i++) {
         GNG3(K, V, _entry_free)(&dict->buckets[i]);
     }
@@ -115,8 +134,6 @@ static void GNG3(K, V, _free)(GNG3(K, V, _dict) * dict) {
     free(dict->buckets);
     dict->capacity = 1 << 4;
     dict->size = 0;
-    dict->seed0 = 0;
-    dict->seed1 = 0;
     dict->buckets = NULL;
 }
 
