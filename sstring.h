@@ -34,16 +34,19 @@ static char string_push(string *string_ref, char c) {
 }
 
 // string_pop - Pops the last character to the end of the given string.
-static char string_pop(string *string_ref) { return char_vec_pop(&string_ref->data); }
+static char string_pop(string *string_ref) {
+    return char_vec_pop(&string_ref->data);
+}
 
-// string_insert - Inserts the given c, at the given index into the given string.
+// string_insert - Inserts the given c, at the given index into the given
+// string.
 static char string_insert(string *string_ref, char c, size_t index) {
     return char_vec_insert(&string_ref->data, index, c);
 }
 
 // string_to_cstr - returns a str that can be printed easily.
 static str string_to_cstr(string *string_ref) {
-    str cstr = (str) malloc((string_ref->data.len + 1 * sizeof(char)));
+    str cstr = (str)malloc((string_ref->data.len + 1 * sizeof(char)));
 
     for (i32 i = 0; i < string_ref->data.len; i++) {
         cstr[i] = string_ref->data.arr[i];

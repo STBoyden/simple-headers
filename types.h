@@ -11,9 +11,7 @@ typedef char *str;
 // integers
 #ifndef __cplusplus
 typedef unsigned char bool;
-enum bool {
-    false = 0, true = 1
-};
+enum bool { false = 0, true = 1 };
 #else
 #error These headers are intended for C projects only.
 #endif

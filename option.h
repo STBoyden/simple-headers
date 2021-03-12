@@ -40,7 +40,7 @@ static GNG(T, _option) GNG(T, _option_new)(T data) {
     return opt;
 }
 
-static T GNG(T, _option_unwrap)(GNG(T, _option) *opt) {
+static T GNG(T, _option_unwrap)(GNG(T, _option) * opt) {
     if (opt->data != NULL)
         return opt->data;
     else {
@@ -48,4 +48,4 @@ static T GNG(T, _option_unwrap)(GNG(T, _option) *opt) {
     }
 }
 
-static T GNG(T, _option_expect)(GNG(T, _option) *opt, const str message) {}
+static T GNG(T, _option_expect)(GNG(T, _option) * opt, const str message) {}
