@@ -4,3 +4,5 @@
 /.ccls-cache
 /.idea
 main.c
+
+CMakeLists.txt
