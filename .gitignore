@@ -1,3 +1,7 @@
 /cmake-build-debug
 /cmake-build-release
+/build
+/.ccls-cache
+/.idea
 main.c
+CMakeLists.txt
